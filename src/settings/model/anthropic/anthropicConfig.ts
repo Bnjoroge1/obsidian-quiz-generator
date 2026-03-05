@@ -9,5 +9,5 @@ export interface AnthropicConfig {
 export const DEFAULT_ANTHROPIC_SETTINGS: AnthropicConfig = {
 	anthropicApiKey: "",
 	anthropicBaseURL: "https://api.anthropic.com",
-	anthropicTextGenModel: AnthropicTextGenModel.CLAUDE_3_HAIKU,
+	anthropicTextGenModel: AnthropicTextGenModel.CLAUDE_HAIKU_4_5,
 };
