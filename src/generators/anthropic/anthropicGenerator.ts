@@ -2,7 +2,6 @@ import { Notice } from "obsidian";
 import Anthropic from "@anthropic-ai/sdk";
 import Generator from "../generator";
 import { QuizSettings } from "../../settings/config";
-import { AnthropicTextGenModel } from "./anthropicModels";
 
 export default class AnthropicGenerator extends Generator {
 	private readonly anthropic: Anthropic;
@@ -42,6 +41,6 @@ export default class AnthropicGenerator extends Generator {
 	}
 
 	private getMaxTokens(): number {
-		return this.settings.anthropicTextGenModel === AnthropicTextGenModel.CLAUDE_3_5_SONNET ? 8192 : 4096;
+		return 8192;
 	}
 }
