@@ -58,6 +58,35 @@ This plugin is now available in the **Community plugins** page in Obsidian. You 
    - If you don't have an API key, create an account at the relevant provider's site and retrieve your API key.
 6. Configure the other settings as desired.
 
+#### Self-Hosted / Fork Deployment (BRAT)
+
+If you have forked this repository and want to deploy your own version without going through the original author, follow these steps to publish a release that [BRAT](https://github.com/TfTHacker/obsidian42-brat) can discover.
+
+**One-time setup**
+
+1. Fork this repository on GitHub.
+2. Make your desired code changes.
+3. Ensure the `"version"` field in `manifest.json` and `package.json` match (e.g. `2.1.2`).
+
+**Publishing a release** (triggers the GitHub Actions workflow)
+
+```bash
+# Replace 2.1.2 with the version in your manifest.json
+git tag 2.1.2
+git push origin 2.1.2
+```
+
+GitHub Actions will automatically build the plugin and create a GitHub Release on your fork with all required assets (`main.js`, `manifest.json`, `styles.css`, `versions.json`).
+
+**Installing via BRAT**
+
+1. Install the [BRAT](https://github.com/TfTHacker/obsidian42-brat) community plugin in Obsidian.
+2. Open BRAT settings → **Add Beta Plugin**.
+3. Enter your fork's GitHub URL, e.g. `https://github.com/YOUR_USERNAME/obsidian-quiz-generator`.
+4. BRAT will find the release you just published and install the plugin.
+
+> **Note:** BRAT requires at least one published (non-draft, non-pre-release) GitHub Release on your fork. The release tag must match the `"version"` in `manifest.json` exactly.
+
 ### Generation
 
 - Open the command palette and select "Quiz Generator: Open generator" or select the [brain-circuit](https://lucide.dev/icons/brain-circuit) icon in the left sidebar.
