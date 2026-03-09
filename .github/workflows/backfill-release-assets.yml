@@ -1,9 +1,7 @@
 name: Backfill Release 2.1.2 Assets
 
 on:
-  push:
-    branches:
-      - "copilot/deploy-custom-version-obsidian"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,6 +25,15 @@ jobs:
 
       - name: Build plugin
         run: npm run build
+
+      - name: Verify build output
+        run: |
+          for f in main.js manifest.json styles.css versions.json; do
+            if [ ! -f "$f" ]; then
+              echo "Error: expected build output '$f' not found" >&2
+              exit 1
+            fi
+          done
 
       - name: Upload assets to release 2.1.2
         env:
