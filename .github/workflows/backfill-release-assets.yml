@@ -1,0 +1,45 @@
+name: Backfill Release 2.1.2 Assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          for f in main.js manifest.json styles.css versions.json; do
+            if [ ! -f "$f" ]; then
+              echo "Error: expected build output '$f' not found" >&2
+              exit 1
+            fi
+          done
+
+      - name: Upload assets to release 2.1.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload 2.1.2 \
+            main.js manifest.json styles.css versions.json \
+            --repo "${{ github.repository }}" \
+            --clobber

@@ -1,0 +1,71 @@
+name: Release Obsidian Plugin
+
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release - must match semver (e.g. 2.1.2) and already exist in the repo"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate dispatch tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ github.event.inputs.tag }}"
+          if ! echo "$tag" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: tag '$tag' does not match semver format (e.g. 2.1.2)" >&2
+            exit 1
+          fi
+          if ! gh api "repos/${{ github.repository }}/git/refs/tags/$tag" > /dev/null 2>&1; then
+            echo "Error: tag '$tag' does not exist in the repository" >&2
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', github.event.inputs.tag) || github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Get tag name (push)
+        id: tag_push
+        if: github.event_name == 'push'
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || steps.tag_push.outputs.tag }}
+          name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || steps.tag_push.outputs.tag }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: |
+            main.js
+            manifest.json
+            styles.css
+            versions.json
