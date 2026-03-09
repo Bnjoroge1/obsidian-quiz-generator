@@ -1,0 +1,43 @@
+name: Backfill Release 2.1.2 Assets
+
+on:
+  push:
+    branches:
+      - "copilot/deploy-custom-version-obsidian"
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Upload assets to release 2.1.2
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "2.1.2"
+          name: "2.1.2"
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: |
+            main.js
+            manifest.json
+            styles.css
+            versions.json
